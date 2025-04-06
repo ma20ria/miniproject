@@ -1,0 +1,68 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container">
+    <a class="navbar-brand" routerLink="/">Activity Points Tracker</a>
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <!-- Not logged in -->
+        <ng-container *ngIf="!currentUser">
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/auth/login" routerLinkActive="active">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/auth/signup" routerLinkActive="active">Sign Up</a>
+          </li>
+        </ng-container>
+        
+        <!-- Logged in - All users -->
+        <ng-container *ngIf="currentUser">
+          <li class="nav-item">
+            <a class="nav-link" [routerLink]="['/dashboard', currentUser.role]" routerLinkActive="active">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/profile" routerLinkActive="active">Profile</a>
+          </li>
+          
+          <!-- Student specific -->
+          <ng-container *ngIf="currentUser.role === 'student'">
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/activities" routerLinkActive="active">My Activities</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/activities/submit" routerLinkActive="active">Submit Activity</a>
+            </li>
+          </ng-container>
+          
+          <!-- Teacher specific -->
+          <ng-container *ngIf="currentUser.role === 'teacher' || currentUser.role === 'superadmin'">
+            <li class="nav-item" *ngIf="currentUser.role === 'superadmin'">
+              <a class="nav-link" routerLink="/review" routerLinkActive="active">Review Activities</a>
+            </li>
+          </ng-container>
+          
+          <!-- Superadmin specific -->
+          <ng-container *ngIf="currentUser.role === 'superadmin'">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Admin
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                <li><a class="dropdown-item" routerLink="/admin/users">Manage Users</a></li>
+                <li><a class="dropdown-item" routerLink="/admin/settings">Settings</a></li>
+              </ul>
+            </li>
+          </ng-container>
+          
+          <!-- Logout -->
+          <li class="nav-item">
+            <a class="nav-link" href="javascript:void(0)" (click)="logout()">Logout</a>
+          </li>
+        </ng-container>
+      </ul>
+    </div>
+  </div>
+</nav> 

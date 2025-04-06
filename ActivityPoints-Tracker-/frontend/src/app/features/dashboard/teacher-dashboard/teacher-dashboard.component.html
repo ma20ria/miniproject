@@ -1,0 +1,186 @@
+<app-navbar></app-navbar>
+
+<div class="container py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mb-0">Teacher Dashboard</h1>
+        <div>
+          <a routerLink="report" class="btn btn-primary">
+            <i class="bi bi-file-text me-2"></i>View Report
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading your dashboard...</p>
+  </div>
+
+  <div *ngIf="!isLoading">
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+      <div class="col-md-4 mb-3 mb-md-0">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center">
+            <h3 class="text-warning mb-0">{{ totalPendingRequests }}</h3>
+            <p class="text-muted mb-0">Pending Requests</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4 mb-3 mb-md-0">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center">
+            <h3 class="text-success mb-0">{{ totalApprovedRequests }}</h3>
+            <p class="text-muted mb-0">Approved Requests</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center">
+            <h3 class="text-danger mb-0">{{ totalRejectedRequests }}</h3>
+            <p class="text-muted mb-0">Rejected Requests</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Pending Activities -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-0">
+        <h5 class="mb-0">Pending Certificate Requests</h5>
+      </div>
+      <div class="card-body">
+        <div *ngIf="pendingActivities.length === 0" class="text-center py-4">
+          <p class="text-muted mb-0">No pending certificate requests.</p>
+        </div>
+        
+        <div *ngIf="pendingActivities.length > 0" class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let activity of pendingActivities">
+                <td>
+                  <div class="d-flex flex-column">
+                    <span class="fw-medium">{{ isUserObject(activity.student) ? activity.student.name : 'Unknown' }}</span>
+                    <small class="text-muted">{{ isUserObject(activity.student) ? activity.student.rollNumber : '' }} | {{ isUserObject(activity.student) ? activity.student.class : '' }}</small>
+                  </div>
+                </td>
+                <td>{{ activity.title }}</td>
+                <td>{{ activity.activityType }}</td>
+                <td>{{ activity.date | date:'mediumDate' }}</td>
+                <td>
+                  <button class="btn btn-sm btn-primary" (click)="selectActivity(activity)" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                    Review
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Review Modal -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="reviewModalLabel">Review Certificate</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="selectedActivity">
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h6 class="mb-2">Student Information</h6>
+              <p class="mb-1"><strong>Name:</strong> {{ isUserObject(selectedActivity.student) ? selectedActivity.student.name : 'Unknown' }}</p>
+              <p class="mb-1"><strong>Roll Number:</strong> {{ isUserObject(selectedActivity.student) ? selectedActivity.student.rollNumber : '' }}</p>
+              <p class="mb-1"><strong>Class:</strong> {{ isUserObject(selectedActivity.student) ? selectedActivity.student.class : '' }}</p>
+              <p class="mb-1"><strong>Department:</strong> {{ isUserObject(selectedActivity.student) ? selectedActivity.student.department : '' }}</p>
+              <p class="mb-0"><strong>Semester:</strong> {{ isUserObject(selectedActivity.student) ? selectedActivity.student.semester : '' }}</p>
+            </div>
+            <div class="col-md-6">
+              <h6 class="mb-2">Certificate Information</h6>
+              <p class="mb-1"><strong>Title:</strong> {{ selectedActivity.title }}</p>
+              <p class="mb-1"><strong>Type:</strong> {{ selectedActivity.activityType }}</p>
+              <p class="mb-1"><strong>Date:</strong> {{ selectedActivity.date | date:'mediumDate' }}</p>
+              <p class="mb-0"><strong>Submitted On:</strong> {{ selectedActivity.createdAt | date:'mediumDate' }}</p>
+            </div>
+          </div>
+          
+          <div class="mb-4">
+            <h6 class="mb-2">Description</h6>
+            <p class="mb-0">{{ selectedActivity.description }}</p>
+          </div>
+          
+          <div class="mb-4">
+            <h6 class="mb-2">Certificate Preview</h6>
+            <div *ngIf="selectedActivity?.certificateFile">
+              <a [href]="getCertificateUrl(selectedActivity.certificateFile)" 
+                 target="_blank" 
+                 class="btn btn-primary">
+                <i class="bi bi-file-earmark-pdf me-2"></i>View Certificate
+              </a>
+              <small class="d-block mt-2 text-muted">Click to open certificate in a new tab</small>
+            </div>
+            <p *ngIf="!selectedActivity?.certificateFile" class="text-muted">No certificate available</p>
+          </div>
+          
+          <form [formGroup]="reviewForm">
+            <div class="mb-3">
+              <label class="form-label">Decision</label>
+              <div class="d-flex">
+                <div class="form-check me-3">
+                  <input class="form-check-input" type="radio" formControlName="status" id="statusApprove" value="approved">
+                  <label class="form-check-label" for="statusApprove">
+                    Approve
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" formControlName="status" id="statusReject" value="rejected">
+                  <label class="form-check-label" for="statusReject">
+                    Reject
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="pointsAwarded" class="form-label">Activity Points</label>
+              <input type="number" class="form-control bg-light" id="pointsAwarded" [value]="selectedActivity.points" readonly>
+              <small class="text-muted">Points calculated based on activity type and level</small>
+            </div>
+            
+            <div class="mb-3">
+              <label for="feedback" class="form-label">Feedback (Optional)</label>
+              <textarea class="form-control" id="feedback" formControlName="feedback" rows="3" placeholder="Provide feedback to the student"></textarea>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" (click)="submitReview()" data-bs-dismiss="modal">Submit Review</button>
+      </div>
+    </div>
+  </div>
+</div> 

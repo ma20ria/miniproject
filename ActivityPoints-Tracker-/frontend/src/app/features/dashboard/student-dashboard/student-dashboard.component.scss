@@ -1,0 +1,86 @@
+.shadow-sm {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+.card {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  }
+}
+
+.chart-container {
+  position: relative;
+  margin: auto;
+  height: 300px;
+  width: 100%;
+  canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
+
+.doughnut-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  padding: 10px;
+  
+  canvas {
+    max-width: 300px !important;
+    max-height: 300px !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
+
+h3 {
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.text-muted {
+  font-size: 0.9rem;
+}
+
+.badge {
+  padding: 0.5em 0.75em;
+  font-weight: 500;
+}
+
+.table {
+  font-size: 0.95rem;
+  
+  th {
+    font-weight: 600;
+    color: #495057;
+  }
+}
+
+.card-header {
+  padding: 1rem 1.25rem;
+  
+  h5 {
+    font-weight: 600;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .chart-container {
+    height: 250px;
+  }
+  
+  .doughnut-container {
+    height: 250px;
+    padding: 10px;
+    
+    canvas {
+      max-width: 250px !important;
+      max-height: 250px !important;
+    }
+  }
+} 

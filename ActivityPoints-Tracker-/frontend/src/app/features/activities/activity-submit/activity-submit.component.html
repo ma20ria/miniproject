@@ -1,0 +1,191 @@
+<app-navbar></app-navbar>
+
+<div class="container py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mb-0">Submit Activity</h1>
+        <a routerLink="/dashboard/student" class="btn btn-outline-primary">Back to Dashboard</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+      <!-- Success Message -->
+      <div *ngIf="successMessage" class="alert alert-success mb-4">
+        {{ successMessage }}
+      </div>
+      
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="alert alert-danger mb-4">
+        {{ errorMessage }}
+      </div>
+      
+      <form [formGroup]="activityForm" (ngSubmit)="onSubmit()">
+        <!-- Certificate Upload -->
+        <div class="mb-4">
+          <h5 class="mb-3">Upload Certificate</h5>
+          <div class="certificate-upload-container">
+            <div class="certificate-upload-box" [class.is-invalid]="!selectedFile && activityForm.touched">
+              <input 
+                type="file" 
+                id="certificateFile" 
+                class="file-input" 
+                accept=".pdf,.jpg,.jpeg,.png" 
+                (change)="onFileSelected($event)"
+              >
+              <label for="certificateFile" class="file-label">
+                <div class="upload-icon">
+                  <i class="bi bi-cloud-arrow-up"></i>
+                </div>
+                <div class="upload-text">
+                  <span *ngIf="!selectedFile">Drag & drop your certificate here or click to browse</span>
+                  <span *ngIf="selectedFile">{{ selectedFile.name }}</span>
+                </div>
+              </label>
+            </div>
+          </div>
+          <small class="text-muted">Supported formats: PDF, JPG, JPEG, PNG (Max size: 5MB)</small>
+        </div>
+        
+        <!-- Certificate Details -->
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="title" class="form-label">Certificate Title</label>
+            <input 
+              type="text" 
+              id="title" 
+              formControlName="title" 
+              class="form-input"
+              [class.is-invalid]="activityForm.get('title')?.invalid && activityForm.get('title')?.touched"
+            >
+            <div *ngIf="activityForm.get('title')?.invalid && activityForm.get('title')?.touched" class="invalid-feedback">
+              Title is required
+            </div>
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <label for="eventOrganizer" class="form-label">Event Organizer</label>
+            <input 
+              type="text" 
+              id="eventOrganizer" 
+              formControlName="eventOrganizer" 
+              class="form-input"
+              [class.is-invalid]="activityForm.get('eventOrganizer')?.invalid && activityForm.get('eventOrganizer')?.touched"
+            >
+            <div *ngIf="activityForm.get('eventOrganizer')?.invalid && activityForm.get('eventOrganizer')?.touched" class="invalid-feedback">
+              Event organizer is required
+            </div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="activityType" class="form-label">Activity Type</label>
+            <select 
+              id="activityType" 
+              formControlName="activityType" 
+              class="form-input"
+              [class.is-invalid]="activityForm.get('activityType')?.invalid && activityForm.get('activityType')?.touched"
+            >
+              <option value="">Select Activity Type</option>
+              <option *ngFor="let type of activityTypes" [value]="type">{{ type | titlecase }}</option>
+            </select>
+            <div *ngIf="activityForm.get('activityType')?.invalid && activityForm.get('activityType')?.touched" class="invalid-feedback">
+              Activity type is required
+            </div>
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <label for="date" class="form-label">Certificate Date</label>
+            <input 
+              type="date" 
+              id="date" 
+              formControlName="date" 
+              class="form-input"
+              [class.is-invalid]="activityForm.get('date')?.invalid && activityForm.get('date')?.touched"
+              [max]="today"
+            >
+            <div *ngIf="activityForm.get('date')?.invalid && activityForm.get('date')?.touched" class="invalid-feedback">
+              Valid date is required
+            </div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6 mb-3" *ngIf="activityForm.get('activityType')?.value === 'sports'">
+            <label for="level" class="form-label">Activity Level</label>
+            <select 
+              id="level" 
+              formControlName="level" 
+              class="form-input"
+              [class.is-invalid]="activityForm.get('level')?.invalid && activityForm.get('level')?.touched"
+            >
+              <option value="">Select Level</option>
+              <option *ngFor="let level of levels" [value]="level">Level {{ level }}</option>
+            </select>
+            <div *ngIf="activityForm.get('level')?.invalid && activityForm.get('level')?.touched" class="invalid-feedback">
+              Level is required for sports activities
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="semester" class="form-label">Semester</label>
+            <select 
+              id="semester" 
+              formControlName="semester" 
+              class="form-input"
+              [class.is-invalid]="activityForm.get('semester')?.invalid && activityForm.get('semester')?.touched"
+            >
+              <option value="">Select Semester</option>
+              <option *ngFor="let sem of semesters" [value]="sem">Semester {{ sem }}</option>
+            </select>
+            <div *ngIf="activityForm.get('semester')?.invalid && activityForm.get('semester')?.touched" class="invalid-feedback">
+              <span *ngIf="activityForm.get('semester')?.errors?.['required']">Semester is required</span>
+              <span *ngIf="activityForm.get('semester')?.errors?.['min'] || activityForm.get('semester')?.errors?.['max']">
+                Semester must be between 1 and 8
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Points</label>
+            <div class="form-control bg-light">
+              {{ calculatedPoints }} points
+            </div>
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea 
+            id="description" 
+            formControlName="description" 
+            class="form-input" 
+            rows="4"
+            [class.is-invalid]="activityForm.get('description')?.invalid && activityForm.get('description')?.touched"
+          ></textarea>
+          <div *ngIf="activityForm.get('description')?.invalid && activityForm.get('description')?.touched" class="invalid-feedback">
+            Description is required
+          </div>
+        </div>
+        
+        <div class="d-grid gap-2 mt-4">
+          <button 
+            type="submit" 
+            class="btn btn-primary" 
+            [disabled]="activityForm.invalid || isSubmitting || !selectedFile"
+          >
+            <span *ngIf="isSubmitting">
+              <i class="bi bi-arrow-repeat spin me-2"></i>Submitting...
+            </span>
+            <span *ngIf="!isSubmitting">Submit Activity</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div> 

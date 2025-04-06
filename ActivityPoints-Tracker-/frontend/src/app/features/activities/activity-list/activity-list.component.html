@@ -1,0 +1,175 @@
+<app-navbar></app-navbar>
+
+<div class="container py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mb-0">My Activities</h1>
+        <a routerLink="/activities/submit" class="btn btn-primary">Submit New Activity</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading your activities...</p>
+  </div>
+
+  <div *ngIf="!isLoading">
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+      <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center">
+            <h3 class="text-primary mb-0">{{ totalPoints }}</h3>
+            <p class="text-muted mb-0">Total Points</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center">
+            <h3 class="text-success mb-0">{{ approvedActivities }}</h3>
+            <p class="text-muted mb-0">Approved</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center">
+            <h3 class="text-warning mb-0">{{ pendingActivities }}</h3>
+            <p class="text-muted mb-0">Pending</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center">
+            <h3 class="text-danger mb-0">{{ rejectedActivities }}</h3>
+            <p class="text-muted mb-0">Rejected</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <h5 class="mb-3">Filters</h5>
+        <div class="row">
+          <div class="col-md-4 mb-3 mb-md-0">
+            <label class="form-label">Status</label>
+            <div class="d-flex">
+              <div class="btn-group" role="group">
+                <button 
+                  type="button" 
+                  class="btn" 
+                  [class.btn-primary]="statusFilter === 'all'"
+                  [class.btn-outline-primary]="statusFilter !== 'all'"
+                  (click)="setStatusFilter('all')"
+                >
+                  All
+                </button>
+                <button 
+                  type="button" 
+                  class="btn" 
+                  [class.btn-success]="statusFilter === 'approved'"
+                  [class.btn-outline-success]="statusFilter !== 'approved'"
+                  (click)="setStatusFilter('approved')"
+                >
+                  Approved
+                </button>
+                <button 
+                  type="button" 
+                  class="btn" 
+                  [class.btn-warning]="statusFilter === 'pending'"
+                  [class.btn-outline-warning]="statusFilter !== 'pending'"
+                  (click)="setStatusFilter('pending')"
+                >
+                  Pending
+                </button>
+                <button 
+                  type="button" 
+                  class="btn" 
+                  [class.btn-danger]="statusFilter === 'rejected'"
+                  [class.btn-outline-danger]="statusFilter !== 'rejected'"
+                  (click)="setStatusFilter('rejected')"
+                >
+                  Rejected
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4 mb-3 mb-md-0">
+            <label class="form-label">Activity Type</label>
+            <select class="form-input" [(ngModel)]="typeFilter" (change)="setTypeFilter(typeFilter)">
+              <option value="all">All Types</option>
+              <option *ngFor="let type of activityTypes" [value]="type">{{ type | titlecase }}</option>
+            </select>
+          </div>
+          
+          <div class="col-md-4 d-flex align-items-end">
+            <button class="btn btn-outline-secondary" (click)="resetFilters()">Reset Filters</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Activities List -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-0">
+        <h5 class="mb-0">Activity History</h5>
+      </div>
+      <div class="card-body">
+        <div *ngIf="activities.length === 0" class="text-center py-4">
+          <p class="text-muted mb-0">No activities found.</p>
+        </div>
+        
+        <div *ngIf="activities.length > 0">
+          <div *ngIf="filterActivities().length === 0" class="text-center py-4">
+            <p class="text-muted mb-0">No activities match the selected filters.</p>
+          </div>
+          
+          <div *ngIf="filterActivities().length > 0" class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Type</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Points</th>
+                  <th>Feedback</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let activity of filterActivities()">
+                  <td>{{ activity.title }}</td>
+                  <td>{{ activity.activityType }}</td>
+                  <td>{{ activity.date | date:'mediumDate' }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="getStatusBadgeClass(activity.status)">
+                      {{ activity.status | titlecase }}
+                    </span>
+                  </td>
+                  <td>{{ activity.pointsAwarded || 0 }}</td>
+                  <td>
+                    <span *ngIf="activity.feedback">{{ activity.feedback }}</span>
+                    <span *ngIf="!activity.feedback" class="text-muted">No feedback yet</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

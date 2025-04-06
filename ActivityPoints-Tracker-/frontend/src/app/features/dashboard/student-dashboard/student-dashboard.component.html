@@ -1,0 +1,145 @@
+<app-navbar></app-navbar>
+
+<div class="container py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <h1 class="mb-0">Student Dashboard</h1>
+        <a routerLink="/activities/submit" class="btn btn-primary">Submit New Activity</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading your dashboard...</p>
+  </div>
+
+  <div *ngIf="!isLoading">
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+      <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center">
+            <h3 class="text-primary mb-0">{{ totalPoints }}</h3>
+            <p class="text-muted mb-0">Total Points</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center">
+            <h3 class="text-info mb-0">{{ totalActivities }}</h3>
+            <p class="text-muted mb-0">Total Activities</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3 mb-3 mb-md-0">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center">
+            <h3 class="text-success mb-0">{{ approvedActivities }}</h3>
+            <p class="text-muted mb-0">Approved</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body d-flex flex-column align-items-center">
+            <h3 class="text-warning mb-0">{{ pendingActivities }}</h3>
+            <p class="text-muted mb-0">Pending</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Charts -->
+    <div class="row mb-4">
+      <div class="col-md-6 mb-4 mb-md-0">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-white border-0">
+            <h5 class="mb-0">Activity Status</h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container doughnut-container">
+              <canvas baseChart
+                [data]="doughnutChartData"
+                [options]="doughnutChartOptions"
+                [type]="'doughnut'">
+              </canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-white border-0">
+            <h5 class="mb-0">Points by Semester</h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container" style="position: relative; height: 300px; width: 100%;">
+              <canvas baseChart
+                [data]="barChartData"
+                [options]="barChartOptions"
+                [type]="barChartType">
+              </canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Recent Activities -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Recent Activities</h5>
+            <a routerLink="/activities" class="btn btn-sm btn-outline-primary">View All</a>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Points</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="activities.length === 0">
+                    <td colspan="5" class="text-center py-3">No activities submitted yet.</td>
+                  </tr>
+                  <tr *ngFor="let activity of activities.slice(0, 5)">
+                    <td>{{ activity.title }}</td>
+                    <td>{{ activity.activityType }}</td>
+                    <td>{{ activity.date | date:'mediumDate' }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="{
+                        'bg-success': activity.status === 'approved',
+                        'bg-warning': activity.status === 'pending',
+                        'bg-danger': activity.status === 'rejected'
+                      }">
+                        {{ activity.status | titlecase }}
+                      </span>
+                    </td>
+                    <td>{{ activity.pointsAwarded || 0 }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,125 @@
+<app-navbar></app-navbar>
+
+<div class="container py-5">
+  <div class="row">
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body text-center p-4">
+          <div class="profile-avatar mb-3">
+            <div class="avatar-placeholder">
+              {{ currentUser?.name?.charAt(0) }}
+            </div>
+          </div>
+          <h3 class="mb-1">{{ currentUser?.name }}</h3>
+          <p class="text-muted mb-3">{{ currentUser?.email }}</p>
+          <div class="badge bg-primary mb-3">{{ currentUser?.role | titlecase }}</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <h4 class="mb-4">Profile Information</h4>
+          
+          <!-- Loading Spinner -->
+          <div *ngIf="isLoading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading profile information...</p>
+          </div>
+          
+          <div *ngIf="!isLoading && currentUser">
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <p class="text-muted mb-0">Full Name</p>
+              </div>
+              <div class="col-md-8">
+                <p class="mb-0">{{ currentUser.name }}</p>
+              </div>
+            </div>
+            
+            <hr class="my-3">
+            
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <p class="text-muted mb-0">Email</p>
+              </div>
+              <div class="col-md-8">
+                <p class="mb-0">{{ currentUser.email }}</p>
+              </div>
+            </div>
+            
+            <hr class="my-3">
+            
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <p class="text-muted mb-0">Role</p>
+              </div>
+              <div class="col-md-8">
+                <p class="mb-0">{{ currentUser.role | titlecase }}</p>
+              </div>
+            </div>
+            
+            <hr class="my-3">
+            
+            <div class="row mb-3" *ngIf="currentUser.department">
+              <div class="col-md-4">
+                <p class="text-muted mb-0">Department</p>
+              </div>
+              <div class="col-md-8">
+                <p class="mb-0">{{ currentUser.department }}</p>
+              </div>
+            </div>
+            
+            <hr class="my-3" *ngIf="currentUser.department">
+            
+            <!-- Student-specific information -->
+            <ng-container *ngIf="currentUser.role === 'student'">
+              <div class="row mb-3" *ngIf="currentUser.rollNumber">
+                <div class="col-md-4">
+                  <p class="text-muted mb-0">Roll Number</p>
+                </div>
+                <div class="col-md-8">
+                  <p class="mb-0">{{ currentUser.rollNumber }}</p>
+                </div>
+              </div>
+              
+              <hr class="my-3" *ngIf="currentUser.rollNumber">
+              
+              <div class="row mb-3" *ngIf="currentUser.class">
+                <div class="col-md-4">
+                  <p class="text-muted mb-0">Class</p>
+                </div>
+                <div class="col-md-8">
+                  <p class="mb-0">{{ currentUser.class }}</p>
+                </div>
+              </div>
+              
+              <hr class="my-3" *ngIf="currentUser.class">
+              
+              <div class="row mb-3" *ngIf="currentUser.semester">
+                <div class="col-md-4">
+                  <p class="text-muted mb-0">Semester</p>
+                </div>
+                <div class="col-md-8">
+                  <p class="mb-0">{{ currentUser.semester }}</p>
+                </div>
+              </div>
+            </ng-container>
+            
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <p class="text-muted mb-0">Account Created</p>
+              </div>
+              <div class="col-md-8">
+                <p class="mb-0">{{ currentUser.createdAt | date:'medium' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 
